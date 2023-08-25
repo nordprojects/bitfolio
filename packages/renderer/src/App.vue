@@ -10,23 +10,6 @@ import {onKeyStroke} from '@vueuse/core'
 
 const fileList = ref<FolioFile[]>([])
 
-function contentTypeForFile(file: FolioFile) {
-  const ext = file.name.split('.').pop()?.toLowerCase()
-  switch (ext) {
-    case 'jpg':
-    case 'jpeg':
-    case 'png':
-    case 'gif':
-      return 'image'
-    case 'mp4':
-    case 'webm':
-    case 'mov':
-      return 'video'
-    default:
-      return 'unknown'
-  }
-}
-
 function componentTypeForFile(file: FolioFile) {
   const ext = file.name.split('.').pop()?.toLowerCase()
   switch (ext) {
@@ -43,6 +26,9 @@ function componentTypeForFile(file: FolioFile) {
       return null
   }
 }
+
+type ViewerComponent = NonNullable<ReturnType<typeof componentTypeForFile>>
+type ViewerInstance = InstanceType<ViewerComponent>
 
 const currentFileIndex = ref<number>(0)
 const file = computed<FolioFile | undefined>(() => {
@@ -85,6 +71,9 @@ async function nextFile(nextIndex?: number) {
 
       await task.promise(viewerInstance.display())
     } catch (error: any) {
+        if (task.isCancelled) {
+          return
+        }
         viewerError.value = error.toString()
         stage.value = 'error'
         await task.delay(5000)
@@ -98,25 +87,11 @@ async function nextFile(nextIndex?: number) {
   })
 }
 
-
-
-// const { pause, resume, isActive } = useIntervalFn(() => {
-//   nextFile()
-// }, 5000)
-
-
-type ViewerInstance = InstanceType<typeof ImageViewer> | InstanceType<typeof NoticeViewer> | InstanceType<typeof VideoViewer>
-
 const viewer = ref<ViewerInstance>()
 const stage = ref<'loading'|'displaying'|'fade-out'|'error'>()
 
 const FADE_DURATION = 750
 const PAUSE_BETWEEN_FILES = 750
-// whenever(() => viewer.value?.isFinished, () => {
-//   setTimeout(() => {
-//     nextFile()
-//   }, FADE_DURATION)
-// })
 
 onFileListUpdate((files) => {
   fileList.value = files
@@ -146,9 +121,6 @@ onKeyStroke('Enter', () => {
                  :file="file"
                  :key="file.name" />
 
-      <!-- <NoticeViewer ref="viewer" v-else>
-        I don't know how to display {{ file.name }}
-      </NoticeViewer> -->
     </div>
     <template v-else>
       <div class="no-renderer">
