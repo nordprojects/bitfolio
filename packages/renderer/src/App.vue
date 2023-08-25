@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {onFileListUpdate} from '#preload'
 import type {FolioFile} from '../../main/src/DirWatcher';
-import { computed, nextTick, ref, watchEffect } from 'vue';
+import { computed, nextTick, onUnmounted, ref, watchEffect } from 'vue';
 import ImageViewer from './components/ImageViewer.vue';
 import NoticeViewer from './components/NoticeViewer.vue';
 import { delay, withTimeout, CancellableTask } from './util';
@@ -89,6 +89,9 @@ async function nextFile(nextIndex?: number) {
     nextFile().catch(console.error)
   })
 }
+onUnmounted(() => {
+  viewerTask?.cancel()
+})
 
 const viewer = ref<ViewerInstance>()
 const stage = ref<'loading'|'displaying'|'fade-out'|'error'>()
