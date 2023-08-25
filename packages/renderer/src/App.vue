@@ -8,6 +8,7 @@ import { delay, withTimeout, CancellableTask } from './util';
 import VideoViewer from './components/VideoViewer.vue';
 import {onKeyStroke} from '@vueuse/core'
 import HTMLViewer from './components/HTMLViewer.vue';
+import ShaderViewer from './components/ShaderViewer.vue';
 
 const fileList = ref<FolioFile[]>([])
 
@@ -25,6 +26,8 @@ function componentTypeForFile(file: FolioFile) {
       return VideoViewer
     case 'html':
       return HTMLViewer
+    case 'glsl':
+      return ShaderViewer
     default:
       return null
   }

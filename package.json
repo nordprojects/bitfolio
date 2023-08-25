@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@types/node": "18.17.11",
+    "@types/parse-color": "^1.0.1",
     "@typescript-eslint/eslint-plugin": "6.4.1",
     "@vitejs/plugin-vue": "4.3.3",
     "@vue/test-utils": "2.4.1",
@@ -53,6 +54,8 @@
     "@vueuse/core": "^10.3.0",
     "async-mutex": "^0.4.0",
     "electron-updater": "6.1.1",
-    "platform-folders": "^0.6.0"
+    "parse-color": "^1.0.0",
+    "platform-folders": "^0.6.0",
+    "twgl.js": "^5.5.3"
   }
 }

@@ -31,7 +31,7 @@ app.on('window-all-closed', () => {
  */
 app.on('activate', restoreOrCreateWindow);
 
-app.on('ready', registerFolioProtocol)
+registerFolioProtocol()
 
 /**
  * Create the application window when the background process is ready.

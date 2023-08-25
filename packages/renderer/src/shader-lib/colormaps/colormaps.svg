@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="566" height="285" viewBox="0 0 566 285">
+  <!-- 
+    Notice! If editing this file, make sure the `id`s on `linearGradient`s are
+    preserved - those are the elements that are extracted in the application
+    code.
+   -->
+  <defs>
+    <linearGradient x1="-1.11022302e-14%" y1="50%" x2="100%" y2="50%" id="london">
+        <stop stop-color="#000000" offset="0%"></stop>
+        <stop stop-color="#573231" offset="17.4250422%"></stop>
+        <stop stop-color="#7D81B4" offset="32.8600084%"></stop>
+        <stop stop-color="#C9B9C2" offset="52.9639992%"></stop>
+        <stop stop-color="#DBCFBE" offset="65.625%"></stop>
+        <stop stop-color="#EFE9C5" offset="81.5720017%"></stop>
+        <stop stop-color="#F0ECDE" offset="89.4663218%"></stop>
+        <stop stop-color="#FFFFFF" offset="100%"></stop>
+    </linearGradient>
+    <linearGradient x1="-1.11022302e-14%" y1="50%" x2="100%" y2="50%" id="wave">
+        <stop stop-color="#101D30" offset="0%"></stop>
+        <stop stop-color="#0B203D" offset="18.3092272%"></stop>
+        <stop stop-color="#265080" offset="32.8916807%"></stop>
+        <stop stop-color="#8F868A" offset="51.5192724%"></stop>
+        <stop stop-color="#A6A39A" offset="66.7546453%"></stop>
+        <stop stop-color="#CFD0C0" offset="83.6254223%"></stop>
+        <stop stop-color="#F1E6CE" offset="100%"></stop>
+    </linearGradient>
+    <linearGradient x1="100%" y1="50%" x2="-1.11022302e-14%" y2="50%" id="blue">
+        <stop stop-color="#3A7BB1" offset="0%"></stop>
+        <stop stop-color="#94B6DD" offset="49.4800465%"></stop>
+        <stop stop-color="#F0F0F0" offset="100%"></stop>
+    </linearGradient>
+    <linearGradient x1="-1.11022302e-14%" y1="50%" x2="100%" y2="50%" id="fire">
+        <stop stop-color="#000000" offset="0%"></stop>
+        <stop stop-color="#850200" offset="28.7181284%"></stop>
+        <stop stop-color="#F52300" offset="51.5888936%"></stop>
+        <stop stop-color="#FF9400" offset="71.7271959%"></stop>
+        <stop stop-color="#FFF11E" offset="92.9951436%"></stop>
+        <stop stop-color="#FFFFFF" offset="100%"></stop>
+    </linearGradient>
+    <linearGradient x1="-1.11022302e-14%" y1="50%" x2="100%" y2="50%" id="electric">
+        <stop stop-color="#000000" offset="0%"></stop>
+        <stop stop-color="#004EC4" offset="25.2322635%"></stop>
+        <stop stop-color="#0091C5" offset="38.5926943%"></stop>
+        <stop stop-color="#00C5C3" offset="51.5192724%"></stop>
+        <stop stop-color="#63D8AC" offset="62.5897382%"></stop>
+        <stop stop-color="#FFDB60" offset="74.8310811%"></stop>
+        <stop stop-color="#FFEBA4" offset="86.3861909%"></stop>
+        <stop stop-color="#FFFFFF" offset="100%"></stop>
+    </linearGradient>
+    <linearGradient x1="-1.11022302e-14%" y1="50%" x2="100%" y2="50%" id="viridis">
+        <stop stop-color="#440154" offset="0%"></stop>
+        <stop stop-color="#472676" offset="10.5231208%"></stop>
+        <stop stop-color="#423E85" offset="21.1293651%"></stop>
+        <stop stop-color="#2C728E" offset="36.2357475%"></stop>
+        <stop stop-color="#1F938B" offset="51.5192724%"></stop>
+        <stop stop-color="#59C764" offset="72.7020829%"></stop>
+        <stop stop-color="#A2DA37" offset="84.2664421%"></stop>
+        <stop stop-color="#FDE724" offset="100%"></stop>
+    </linearGradient>
+    <linearGradient x1="-1.11022302e-14%" y1="50%" x2="99.8627534%" y2="50%" id="plasma">
+        <stop stop-color="#0C0786" offset="0%"></stop>
+        <stop stop-color="#8506A6" offset="28.1408361%"></stop>
+        <stop stop-color="#CF4B74" offset="51.5192724%"></stop>
+        <stop stop-color="#FBA337" offset="78.5631334%"></stop>
+        <stop stop-color="#EFF821" offset="100%"></stop>
+    </linearGradient>
+    <linearGradient x1="-1.11022302e-14%" y1="50%" x2="100%" y2="50%" id="inferno">
+        <stop stop-color="#000003" offset="0%"></stop>
+        <stop stop-color="#2D0A58" offset="16.1739865%"></stop>
+        <stop stop-color="#62146E" offset="28.0700909%"></stop>
+        <stop stop-color="#C83E4B" offset="54.401216%"></stop>
+        <stop stop-color="#FBA208" offset="79.0211422%"></stop>
+        <stop stop-color="#FCFEA4" offset="100%"></stop>
+        <stop stop-color="#FCFEA4" offset="100%"></stop>
+    </linearGradient>
+    <linearGradient x1="-1.11022302e-14%" y1="50%" x2="100%" y2="50%" id="magma">
+        <stop stop-color="#000003" offset="0%"></stop>
+        <stop stop-color="#4F117B" offset="24.833334%"></stop>
+        <stop stop-color="#822581" offset="38.3313978%"></stop>
+        <stop stop-color="#B3357A" offset="50.9923986%"></stop>
+        <stop stop-color="#FB8861" offset="75.3016524%"></stop>
+        <stop stop-color="#FBFCBF" offset="100%"></stop>
+    </linearGradient>
+  </defs>
+  <rect width="566" height="32" fill="url(#twilight)" fill-rule="evenodd"/>
+</svg>

@@ -19,7 +19,7 @@ async function prepare() {
 }
 
 async function display() {
-  await delay(10000);
+  await delay(20000);
 }
 
 defineExpose({
