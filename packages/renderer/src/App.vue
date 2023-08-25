@@ -77,6 +77,7 @@ async function nextFile(nextIndex?: number) {
         if (task.isCancelled) {
           return
         }
+        console.error('Error displaying file', file.value?.name, error)
         viewerError.value = error.toString()
         stage.value = 'error'
         await task.delay(5000)

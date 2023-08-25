@@ -66,7 +66,7 @@ const url = computed(() => getURLForFile(props.file));
          ref="videoElement"
          :loop="loopingDuration != null"
          @play="loadResolve()"
-         @error="ev => loadReject(ev.toString())"
+         @error="ev => loadReject('video failed to load')"
          @ended="endedResolve()"
          @waiting="endedReject('lack of data')" />
 </template>
