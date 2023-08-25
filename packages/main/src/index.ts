@@ -2,6 +2,7 @@ import {app} from 'electron';
 import './security-restrictions';
 import {restoreOrCreateWindow} from '/@/mainWindow';
 import {platform} from 'node:process';
+import { registerFolioProtocol } from './folioProtocol';
 
 /**
  * Prevent electron from running multiple instances.
@@ -16,21 +17,21 @@ app.on('second-instance', restoreOrCreateWindow);
 /**
  * Disable Hardware Acceleration to save more system resources.
  */
-app.disableHardwareAcceleration();
+// app.disableHardwareAcceleration();
 
 /**
  * Shout down background process if all windows was closed
  */
 app.on('window-all-closed', () => {
-  if (platform !== 'darwin') {
-    app.quit();
-  }
+  app.quit();
 });
 
 /**
  * @see https://www.electronjs.org/docs/latest/api/app#event-activate-macos Event: 'activate'.
  */
 app.on('activate', restoreOrCreateWindow);
+
+app.on('ready', registerFolioProtocol)
 
 /**
  * Create the application window when the background process is ready.

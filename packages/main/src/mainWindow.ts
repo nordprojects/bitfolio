@@ -1,5 +1,6 @@
-import {app, BrowserWindow} from 'electron';
+import {app, BrowserWindow, ipcMain} from 'electron';
 import {join, resolve} from 'node:path';
+import DirWatcher from './DirWatcher';
 
 async function createWindow() {
   const browserWindow = new BrowserWindow({
@@ -9,6 +10,7 @@ async function createWindow() {
       contextIsolation: true,
       sandbox: false, // Sandbox disabled because the demo of preload script depend on the Node.js api
       webviewTag: false, // The webview tag is not recommended. Consider alternatives like an iframe or Electron's BrowserView. @see https://www.electronjs.org/docs/latest/api/webview-tag#warning
+      autoplayPolicy: 'no-user-gesture-required',
       preload: join(app.getAppPath(), 'packages/preload/dist/index.cjs'),
     },
   });
@@ -49,6 +51,18 @@ async function createWindow() {
      */
     await browserWindow.loadFile(resolve(__dirname, '../../renderer/dist/index.html'));
   }
+
+  const dirWatcher = new DirWatcher();
+  dirWatcher.didUpdate = () => {
+    console.log('didUpdate', dirWatcher.files);
+    // send to the renderer
+    browserWindow.webContents.send('files', dirWatcher.files);
+  }
+  dirWatcher.watch();
+
+  ipcMain.on('request-files', (event) => {
+    event.reply('files', dirWatcher.files);
+  })
 
   return browserWindow;
 }
