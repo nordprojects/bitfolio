@@ -5,6 +5,8 @@ import { computed, nextTick, ref, watchEffect } from 'vue';
 import ImageViewer from './components/ImageViewer.vue';
 import NoticeViewer from './components/NoticeViewer.vue';
 import { delay, withTimeout, CancellableTask } from './util';
+import VideoViewer from './components/VideoViewer.vue';
+import {onKeyStroke} from '@vueuse/core'
 
 const fileList = ref<FolioFile[]>([])
 
@@ -25,9 +27,32 @@ function contentTypeForFile(file: FolioFile) {
   }
 }
 
+function componentTypeForFile(file: FolioFile) {
+  const ext = file.name.split('.').pop()?.toLowerCase()
+  switch (ext) {
+    case 'jpg':
+    case 'jpeg':
+    case 'png':
+    case 'gif':
+      return ImageViewer
+    case 'mp4':
+    case 'webm':
+    case 'mov':
+      return VideoViewer
+    default:
+      return null
+  }
+}
+
 const currentFileIndex = ref<number>(0)
 const file = computed<FolioFile | undefined>(() => {
   return fileList.value[currentFileIndex.value]
+})
+const viewerComponent = computed(() => {
+  if (!file.value) {
+    return null
+  }
+  return componentTypeForFile(file.value)
 })
 
 const viewerError = ref<string|null>(null)
@@ -37,7 +62,10 @@ async function nextFile(nextIndex?: number) {
   if (nextIndex == undefined) {
     nextIndex = (currentFileIndex.value + 1) % fileList.value.length
   }
+
   currentFileIndex.value = nextIndex
+  viewerError.value = null
+  stage.value = 'loading'
 
   viewerTask?.cancel()
   viewerTask = null
@@ -47,17 +75,19 @@ async function nextFile(nextIndex?: number) {
 
     const viewerInstance = viewer.value
     if (!viewerInstance) {
+      viewerError.value = `No viewer for file ${file.value?.name}`
+      stage.value = 'error'
+      await task.delay(5000)
+      nextFile().catch(console.error)
       return
     }
-
-    viewerError.value = null
-    stage.value = 'loading'
 
     try {
       await task.promise(withTimeout(5000, viewerInstance.prepare()))
     } catch (err: any) {
       console.error('Error preparing viewer', err)
       viewerError.value = err.toString()
+      stage.value = 'error'
       await task.delay(5000)
       nextFile().catch(console.error)
     }
@@ -80,12 +110,8 @@ async function nextFile(nextIndex?: number) {
 //   nextFile()
 // }, 5000)
 
-onFileListUpdate((files) => {
-  fileList.value = files
-  nextFile(0).catch(console.error)
-})
 
-type ViewerInstance = InstanceType<typeof ImageViewer> | InstanceType<typeof NoticeViewer>
+type ViewerInstance = InstanceType<typeof ImageViewer> | InstanceType<typeof NoticeViewer> | InstanceType<typeof VideoViewer>
 
 const viewer = ref<ViewerInstance>()
 const stage = ref<'loading'|'displaying'|'fade-out'|'error'>()
@@ -97,8 +123,18 @@ const PAUSE_BETWEEN_FILES = 750
 //     nextFile()
 //   }, FADE_DURATION)
 // })
+
+onFileListUpdate((files) => {
+  fileList.value = files
+  nextFile(0).catch(console.error)
+})
+
 watchEffect(() => {
   console.log('file', file.value?.name, 'stage', stage.value)
+})
+
+onKeyStroke('Enter', () => {
+  nextFile()
 })
 
 </script>
@@ -109,10 +145,16 @@ watchEffect(() => {
       <template v-if="viewerError">
         <div class="error">{{ viewerError }}</div>
       </template>
-      <ImageViewer ref="viewer" v-if="contentTypeForFile(file) === 'image'" :file="file" :key="file.name" />
-      <NoticeViewer ref="viewer" v-else>
+
+      <component v-if="viewerComponent != null"
+                 :is="viewerComponent"
+                 ref="viewer"
+                 :file="file"
+                 :key="file.name" />
+
+      <!-- <NoticeViewer ref="viewer" v-else>
         I don't know how to display {{ file.name }}
-      </NoticeViewer>
+      </NoticeViewer> -->
     </div>
     <template v-else>
       <div class="no-renderer">
@@ -132,7 +174,7 @@ watchEffect(() => {
   transition: opacity 750ms ease;
   opacity: 0;
 
-  &.stage-displaying {
+  &.stage-displaying, &.stage-error {
     opacity: 1;
   }
 }

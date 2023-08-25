@@ -3,7 +3,7 @@ import type { FolioFile } from '../../main/src/DirWatcher';
 export const CONFORM_TAGS = ['1-1', 'fit', 'fill'] as const
 export type ConformTag = typeof CONFORM_TAGS[number];
 
-export type FilenameTag = ConformTag | string;
+export type FilenameTag = ConformTag | 'loop' | string;
 
 export function getFilenameTags(filename: string): FilenameTag[]  {
   // filename is something.fit.bg-pink.jpg
@@ -17,6 +17,26 @@ export function getConformTag(filename: string): ConformTag | null {
     if (CONFORM_TAGS.includes(tag as ConformTag)) {
       console.log(tags);
       return tag as ConformTag;
+    }
+  }
+  return null
+}
+
+export function hasLoopTag(filename: string): boolean {
+  const tags = getFilenameTags(filename);
+  return tags.includes('loop');
+}
+
+/**
+ * if the filename specifies duration, return it in milliseconds
+ */
+export function getDurationTag(filename: string): number | null {
+  const tags = getFilenameTags(filename);
+  for (const tag of tags) {
+    // tag looks like '3s' or '15.8s'
+    const match = tag.match(/^(\d+(?:\.\d+)?)s$/);
+    if (match) {
+      return parseFloat(match[1]) * 1000;
     }
   }
   return null
