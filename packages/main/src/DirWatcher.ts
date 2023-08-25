@@ -13,6 +13,10 @@ export interface FolioFile {
   lastEventTime: number;
 }
 
+const IGNORE_LIST = [
+  '.DS_Store',
+]
+
 export default class DirWatcher {
   didUpdate: () => void = () => {};
 
@@ -68,7 +72,11 @@ export default class DirWatcher {
   }
 
   async update() {
-    const filenames = await fs.readdir(MY_APP_FOLIO_DIR);
+    let filenames = await fs.readdir(MY_APP_FOLIO_DIR);
+
+    // filter out ignored files
+    filenames = filenames.filter(name => !IGNORE_LIST.includes(name));
+
     // populate the files array
     const files: FolioFile[] = await Promise.all(filenames.map(async (name) => {
       const stat = await fs.stat(path.join(MY_APP_FOLIO_DIR, name));
