@@ -73,28 +73,22 @@ async function nextFile(nextIndex?: number) {
   viewerTask = new CancellableTask(async task => {
     await task.promise(nextTick())
 
-    const viewerInstance = viewer.value
-    if (!viewerInstance) {
-      viewerError.value = `No viewer for file ${file.value?.name}`
-      stage.value = 'error'
-      await task.delay(5000)
-      nextFile().catch(console.error)
-      return
-    }
-
     try {
+      const viewerInstance = viewer.value
+      if (!viewerInstance) {
+        throw new Error(`No viewer available for file ${file.value?.name}`)
+      }
+
       await task.promise(withTimeout(5000, viewerInstance.prepare()))
-    } catch (err: any) {
-      console.error('Error preparing viewer', err)
-      viewerError.value = err.toString()
-      stage.value = 'error'
-      await task.delay(5000)
-      nextFile().catch(console.error)
+
+      stage.value = 'displaying'
+
+      await task.promise(viewerInstance.display())
+    } catch (error: any) {
+        viewerError.value = error.toString()
+        stage.value = 'error'
+        await task.delay(5000)
     }
-
-    stage.value = 'displaying'
-
-    await task.promise(viewerInstance.display())
 
     stage.value = 'fade-out'
 
