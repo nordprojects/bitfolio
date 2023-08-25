@@ -7,6 +7,7 @@ import NoticeViewer from './components/NoticeViewer.vue';
 import { delay, withTimeout, CancellableTask } from './util';
 import VideoViewer from './components/VideoViewer.vue';
 import {onKeyStroke} from '@vueuse/core'
+import HTMLViewer from './components/HTMLViewer.vue';
 
 const fileList = ref<FolioFile[]>([])
 
@@ -22,6 +23,8 @@ function componentTypeForFile(file: FolioFile) {
     case 'webm':
     case 'mov':
       return VideoViewer
+    case 'html':
+      return HTMLViewer
     default:
       return null
   }
