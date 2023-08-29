@@ -23,7 +23,7 @@ export default class DirWatcher {
   lastEventTimes: Record<string, number> = {};
 
   constructor() {
-    console.log(MY_APP_FOLIO_DIR);
+    console.log("Folio dir: ", MY_APP_FOLIO_DIR);
     // ensure the directory exists
     fs.mkdir(MY_APP_FOLIO_DIR, {recursive: true});
 
@@ -72,20 +72,25 @@ export default class DirWatcher {
   }
 
   async update() {
-    let filenames = await fs.readdir(MY_APP_FOLIO_DIR);
-
-    // filter out ignored files
-    filenames = filenames.filter(name => !IGNORE_LIST.includes(name));
+    const filenames = await fs.readdir(MY_APP_FOLIO_DIR);
 
     // populate the files array
-    const files: FolioFile[] = await Promise.all(filenames.map(async (name) => {
+    let files = await Promise.all(filenames.map(async (name) => {
       const stat = await fs.stat(path.join(MY_APP_FOLIO_DIR, name));
       return {
         name,
         mtime: stat.mtimeMs,
         lastEventTime: this.lastEventTimes[name] ?? stat.mtimeMs,
+        isDir: stat.isDirectory(),
       };
     }));
+
+    // filter out ignored files
+    files = files.filter(file => !IGNORE_LIST.includes(file.name));
+
+    // filter out files that are dirs
+    files = files.filter(file => !file.isDir);
+
     // sort by lastEventTime, latest first
     files.sort((a, b) => b.lastEventTime - a.lastEventTime);
     this.files = files;

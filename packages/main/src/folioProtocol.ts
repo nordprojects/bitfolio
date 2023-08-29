@@ -21,7 +21,7 @@ export function registerFolioProtocol() {
   app.on('ready', () => {
     protocol.registerFileProtocol('folio', (request, callback) => {
       const filename = decodeURIComponent(new URL(request.url).pathname)
-      console.log('folio request filename', filename)
+      console.log('Served file:', filename)
       const filepath = path.join(MY_APP_FOLIO_DIR, filename);
       return callback(filepath)
     })
