@@ -1,6 +1,6 @@
 {
-  "name": "vite-electron-builder",
-  "description": "Secure boilerplate for Electron app based on Vite",
+  "name": "bitfolio",
+  "description": "",
   "version": "1.0.2",
   "private": true,
   "author": {
@@ -55,7 +55,6 @@
     "async-mutex": "^0.4.0",
     "electron-updater": "6.1.1",
     "parse-color": "^1.0.0",
-    "platform-folders": "^0.6.0",
     "twgl.js": "^5.5.3"
   }
 }
