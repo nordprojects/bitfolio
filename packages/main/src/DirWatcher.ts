@@ -2,6 +2,7 @@ import * as path from 'node:path';
 import {app} from 'electron';
 import * as fs from 'node:fs/promises';
 import {Mutex} from 'async-mutex';
+import FolioDirReadme from './FolioDirReadme.md?raw'
 
 const APP_SUPPORT_DIR = app.getPath('appData')
 const MY_APP_DIR = path.join(APP_SUPPORT_DIR, 'bitfolio')
@@ -15,6 +16,7 @@ export interface FolioFile {
 
 const IGNORE_LIST = [
   '.DS_Store',
+  'README.txt',
 ]
 
 export default class DirWatcher {
@@ -24,8 +26,6 @@ export default class DirWatcher {
 
   constructor() {
     console.log("Folio dir: ", MY_APP_FOLIO_DIR);
-    // ensure the directory exists
-    fs.mkdir(MY_APP_FOLIO_DIR, {recursive: true});
 
     this.watcher = this.watch();
     this.watcher.catch(console.error)
@@ -34,6 +34,12 @@ export default class DirWatcher {
   watcher?: Promise<void>;
 
   async watch() {
+    // ensure the directory exists
+    await fs.mkdir(MY_APP_FOLIO_DIR, {recursive: true});
+
+    // ensure the readme exists
+    await fs.writeFile(path.join(MY_APP_FOLIO_DIR, 'README.txt'), FolioDirReadme, {flag: 'w'});
+
     await this.updateIfNeeded()
 
     for await (const event of fs.watch(MY_APP_FOLIO_DIR)) {
