@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { FolioFile } from '../../../main/src/DirWatcher';
-import { delay, getURLForFile } from '../util';
+import { delay, getDurationTag, getURLForFile } from '../util';
 
 const props = defineProps<{
   file: FolioFile
@@ -19,13 +19,15 @@ async function prepare() {
 }
 
 async function display() {
-  await delay(20000);
+  await delay(duration.value);
 }
 
 defineExpose({
   prepare,
   display,
 });
+
+const duration = computed(() => getDurationTag(props.file.name) ?? 20000);
 
 const url = computed(() => getURLForFile(props.file));
 </script>
