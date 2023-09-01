@@ -1,14 +1,27 @@
-import {app, BrowserWindow, ipcMain} from 'electron';
+import {app, BrowserWindow, ipcMain, screen} from 'electron';
 import {join, resolve} from 'node:path';
+import {platform} from 'node:os'
 import DirWatcher from './DirWatcher';
 
+function getExternalDisplay() {
+  const displays = screen.getAllDisplays()
+  return displays.find((display) => {
+    return display.bounds.x !== 0 || display.bounds.y !== 0
+  })
+}
+
+const isRunningOnLinux = platform() === 'linux';
+
 async function createWindow() {
+  const externalDisplay = getExternalDisplay();
+
   const browserWindow = new BrowserWindow({
     show: false, // Use the 'ready-to-show' event to show the instantiated BrowserWindow.
+    ...(externalDisplay ? {x: externalDisplay.bounds.x + 50, y: externalDisplay.bounds.y + 50} : {}),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: false, // Sandbox disabled because the demo of preload script depend on the Node.js api
+      // sandbox: false, // Sandbox disabled because the demo of preload script depend on the Node.js api
       webviewTag: false, // The webview tag is not recommended. Consider alternatives like an iframe or Electron's BrowserView. @see https://www.electronjs.org/docs/latest/api/webview-tag#warning
       autoplayPolicy: 'no-user-gesture-required',
       preload: join(app.getAppPath(), 'packages/preload/dist/index.cjs'),
@@ -26,9 +39,9 @@ async function createWindow() {
   browserWindow.on('ready-to-show', () => {
     browserWindow?.show();
 
-    // if (import.meta.env.DEV) {
-    //   browserWindow?.webContents.openDevTools();
-    // }
+    if (isRunningOnLinux) {
+      browserWindow.setFullScreen(true);
+    }
   });
 
   /**
