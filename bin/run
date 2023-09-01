@@ -1,0 +1,22 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+cd ..
+
+set -e
+
+# pull the latest code
+echo ">>> Pulling latest code..."
+git pull
+
+# install dependencies
+echo ">>> Installing dependencies..."
+npm install
+
+# build the app
+echo ">>> Building the app..."
+npm run compile
+
+# run the app
+echo ">>> Starting the app..."
+./dist/linux-armv7l-unpacked/bitfolio
