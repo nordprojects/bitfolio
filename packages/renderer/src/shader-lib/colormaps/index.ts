@@ -1,5 +1,5 @@
 import colorMapsSVGString from './colormaps.svg?raw';
-import * as parseColor from "parse-color";
+import parseColor from "parse-color";
 
 class ColormapStop {
     constructor(readonly red: number, readonly green: number, readonly blue: number, readonly position: number) {
