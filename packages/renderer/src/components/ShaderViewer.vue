@@ -35,12 +35,10 @@ async function prepare() {
     throw new Error('Canvas not ready')
   }
 
-  if (shaderEngine.value) {
-    shaderEngine.value.stop()
-    shaderEngine.value = null
+  if (!shaderEngine.value) {
+    shaderEngine.value = new TinyshaderEngine(canvas.value)
   }
 
-  shaderEngine.value = new TinyshaderEngine(canvas.value)
   shaderEngine.value.userCode = shaderCode
   shaderEngine.value.start()
 }
@@ -123,6 +121,7 @@ defineExpose({
     display: grid;
     place-content: center;
     color: rgba(255, 163, 93, 0.483);
+    background: rgba(0, 0, 0, 0.5);
     font-size: 1.5em;
     padding: 4em;
     text-align: left;
