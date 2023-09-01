@@ -72,7 +72,7 @@ function getSettingsFromShaderCode(shader: string): Partial<ShaderSettings> {
 }
 
 onBeforeUnmount(() => {
-  shaderEngine.value?.stop()
+  shaderEngine.value?.destroy()
   shaderEngine.value = null
 })
 

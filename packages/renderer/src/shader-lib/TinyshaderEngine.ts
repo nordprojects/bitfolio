@@ -27,12 +27,24 @@ export default class RenderEngine {
           position: [-1, -1, 0, 1, -1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, 1, 1, 0],
         };
         this.bufferInfo = twgl.createBufferInfoFromArrays(this.gl, arrays);
+        console.log(this.bufferInfo);
         this.updateFragmentShader();
         this.createShader();
         this.startTime = Date.now();
 
         this._render = this._render.bind(this);
         (window as any).engine = this;
+    }
+
+    destroy() {
+        this.stop();
+        if (this.programInfo !== null) {
+            this.gl.deleteProgram(this.programInfo.program);
+        }
+        if (this.bufferInfo.indices) {
+          this.gl.deleteBuffer(this.bufferInfo.indices);
+        }
+        this.gl.getExtension('WEBGL_lose_context')?.loseContext();
     }
 
     vertexShader = 'attribute vec4 position; void main() {gl_Position = position;}\n';
@@ -45,6 +57,9 @@ export default class RenderEngine {
 
     createShader() {
         const shaders = [this.vertexShader+'\n', this.fragmentShader+'\n'];
+        if (this.programInfo !== null) {
+            this.gl.deleteProgram(this.programInfo.program);
+        }
         this.programInfo = twgl.createProgramInfo(this.gl, shaders, {
             errorCallback: (errorMessage) => {
                 const match = errorMessage.match(ERROR_INFO_REGEX);
