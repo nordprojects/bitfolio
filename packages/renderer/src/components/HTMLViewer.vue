@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { FolioFile } from '../../../main/src/DirWatcher';
 import { delay, getDurationTag, getURLForFile } from '../util';
 
@@ -9,17 +9,29 @@ const props = defineProps<{
 
 let loadResolve: () => void;
 let loadReject: (err: any) => void;
-const loadPromise = new Promise<void>((resolve, reject) => {
-  loadResolve = resolve;
-  loadReject = reject;
-});
+
+const isIdle = ref(true);
+const active = ref(false);
 
 async function prepare() {
-  await loadPromise;
+  if (!isIdle.value) { return }
+  isIdle.value = false;
+  try {
+    await new Promise<void>((resolve, reject) => {
+      loadResolve = resolve;
+      loadReject = reject;
+    });
+  }
+  catch (error: any) {
+    isIdle.value = true;
+    throw error;
+  }
 }
 
 async function display() {
+  active.value = true;
   await delay(duration.value);
+  active.value = false;
 }
 
 defineExpose({

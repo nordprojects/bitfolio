@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CSSProperties, StyleValue, computed, ref, watch } from 'vue';
 import { FolioFile } from '../../../main/src/DirWatcher';
-import { ConformTag, delay, getConformTag, getURLForFile, getDurationTag } from '../util';
+import { ConformTag, delay, getConformTag, getURLForFile, getDurationTag, CancellableTask } from '../util';
 
 const props = defineProps<{
   file: FolioFile
@@ -13,29 +13,47 @@ watch(() => props.file, () => {
 
 let loadResolve: () => void;
 let loadReject: (err: any) => void;
-const loadPromise = new Promise<void>((resolve, reject) => {
-  loadResolve = resolve;
-  loadReject = reject;
-});
+const isIdle = ref(true);
 
 let endedResolve: () => void;
 let endedReject: (err: any) => void;
-const endedPromise = new Promise<void>((resolve, reject) => {
-  endedResolve = resolve;
-  endedReject = reject;
-});
+
 
 const videoElement = ref<HTMLVideoElement>();
 
-async function prepare() {
-  await loadPromise;
+async function prepare(task: CancellableTask) {
+  if (!isIdle.value) { return }
+
+  isIdle.value = false;
+  try {
+    await new Promise<void>((resolve, reject) => {
+      loadResolve = resolve;
+      loadReject = reject;
+    });
+  }
+  catch (error: any) {
+    isIdle.value = true;
+    throw error;
+  }
 }
 
 async function display() {
-  if (loopingDuration.value) {
-    await delay(loopingDuration.value);
-  } else {
-    await endedPromise;
+  const endedPromise = new Promise<void>((resolve, reject) => {
+    endedResolve = resolve;
+    endedReject = reject;
+  });
+
+  videoElement.value?.play();
+
+  try {
+    if (loopingDuration.value) {
+      await delay(loopingDuration.value);
+    } else {
+      await endedPromise;
+    }
+  }
+  finally {
+    videoElement.value?.pause()
   }
 }
 

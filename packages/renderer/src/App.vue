@@ -29,7 +29,7 @@ function componentTypeForFile(file: FolioFile) {
     case 'glsl':
       return ShaderViewer
     default:
-      return null
+      return NoticeViewer
   }
 }
 
@@ -37,15 +37,7 @@ type ViewerComponent = NonNullable<ReturnType<typeof componentTypeForFile>>
 type ViewerInstance = InstanceType<ViewerComponent>
 
 const currentFileIndex = ref<number>(0)
-const file = computed<FolioFile | undefined>(() => {
-  return fileList.value[currentFileIndex.value]
-})
-const viewerComponent = computed(() => {
-  if (!file.value) {
-    return null
-  }
-  return componentTypeForFile(file.value)
-})
+const viewers = ref<ViewerInstance[]>([])
 
 const viewerError = ref<string|null>(null)
 let viewerTask: CancellableTask | null = null
@@ -62,25 +54,25 @@ async function nextFile(nextIndex?: number) {
   viewerTask?.cancel()
   viewerTask = null
 
-  viewerTask = new CancellableTask(async task => {
-    await task.promise(nextTick())
+  const file = fileList.value[currentFileIndex.value]
 
+  viewerTask = new CancellableTask(async task => {
     try {
-      const viewerInstance = viewer.value
+      const viewerInstance = viewers.value[currentFileIndex.value] as ViewerInstance | undefined
       if (!viewerInstance) {
-        throw new Error(`No viewer available for file ${file.value?.name}`)
+        throw new Error(`No viewer available for file ${file.name}`)
       }
 
-      await task.promise(withTimeout(5000, viewerInstance.prepare()))
+      await task.promise(withTimeout(5000, viewerInstance.prepare(task)))
 
       stage.value = 'displaying'
 
-      await task.promise(viewerInstance.display())
+      await task.promise(viewerInstance.display(task))
     } catch (error: any) {
         if (task.isCancelled) {
           return
         }
-        console.error('Error displaying file', file.value?.name, error)
+        console.error('Error displaying file', file.name, error)
         viewerError.value = error.toString()
         stage.value = 'error'
         await task.delay(5000)
@@ -97,7 +89,6 @@ onUnmounted(() => {
   viewerTask?.cancel()
 })
 
-const viewer = ref<ViewerInstance>()
 const stage = ref<'loading'|'displaying'|'fade-out'|'error'>()
 
 const FADE_DURATION = 750
@@ -105,11 +96,11 @@ const PAUSE_BETWEEN_FILES = 750
 
 onFileListUpdate((files) => {
   fileList.value = files
-  nextFile(0).catch(console.error)
-})
 
-watchEffect(() => {
-  console.log('file', file.value?.name, 'stage', stage.value)
+  // let the DOM update, then...
+  nextTick().then(() => {
+    nextFile(0).catch(console.error)
+  })
 })
 
 onKeyStroke('Enter', () => {
@@ -120,19 +111,18 @@ onKeyStroke('Enter', () => {
 
 <template>
   <div class="app">
-    <div v-if="file" class="viewer-container" :class="'stage-'+stage">
-      <template v-if="viewerError">
-        <div class="error">{{ viewerError }}</div>
-      </template>
-
-      <component v-if="viewerComponent != null"
-                 :is="viewerComponent"
-                 ref="viewer"
-                 :file="file"
-                 :key="file.name" />
-
-    </div>
-    <template v-else>
+    <component class="file"
+               v-for="(file, index) in fileList"
+               :key="file.name"
+               v-show="index == currentFileIndex"
+               :is="componentTypeForFile(file)"
+               ref="viewers"
+               :file="file" />
+    <template v-if="viewerError">
+      <div class="error">{{ viewerError }}</div>
+    </template>
+    <div class="curtain" :class="[stage]"></div>
+    <template v-if="fileList.length == 0">
       <div class="no-renderer">
         No files found
       </div>
@@ -146,11 +136,18 @@ onKeyStroke('Enter', () => {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
 }
-.viewer-container {
+.curtain {
   transition: opacity 750ms ease;
   opacity: 0;
+  background-color: black;
 
-  &.stage-displaying, &.stage-error {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  &.loading, &.fade-out {
     opacity: 1;
   }
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import type { FolioFile } from '../../../main/src/DirWatcher';
-import { ConformTag, delay, getConformTag, getDurationTag, getURLForFile } from '../util';
+import { CancellableTask, ConformTag, delay, getConformTag, getDurationTag, getURLForFile } from '../util';
 import { whenever } from '@vueuse/core';
 
 const props = defineProps<{
@@ -14,17 +14,29 @@ watch(() => props.file, () => {
 
 let loadResolve: () => void;
 let loadReject: (err: any) => void;
-const loadPromise = new Promise<void>((resolve, reject) => {
-  loadResolve = resolve;
-  loadReject = reject;
-});
 
-async function prepare() {
-  await loadPromise;
+const isIdle = ref(true);
+const active = ref(false);
+
+async function prepare(task: CancellableTask) {
+  if (!isIdle.value) { return }
+  isIdle.value = false;
+  try {
+    await new Promise<void>((resolve, reject) => {
+      loadResolve = resolve;
+      loadReject = reject;
+    });
+  }
+  catch (error: any) {
+    isIdle.value = true;
+    throw error;
+  }
 }
 
-async function display() {
-  await delay(duration.value);
+async function display(task: CancellableTask) {
+  active.value = true;
+  await task.delay(duration.value);
+  active.value = false;
 }
 
 const duration = computed(() => getDurationTag(props.file.name) ?? 20000);
@@ -43,7 +55,7 @@ const url = computed(() => getURLForFile(props.file));
 
 <template>
   <div class="image-viewer" :class="'conform-mode-'+conformMode">
-    <img :src="url" @load="loadResolve()" @error="err => loadReject(err.toString())" />
+    <img v-if="!isIdle" :src="url" @load="loadResolve()" @error="err => loadReject(err.toString())" />
   </div>
 </template>
 

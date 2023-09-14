@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onUnmounted, reactive, ref, shallowRef, watchEffect } from 'vue';
 import { FolioFile } from '../../../main/src/DirWatcher';
-import { delay, getDurationTag, getURLForFile } from '../util';
+import { CancellableTask, delay, getDurationTag, getURLForFile } from '../util';
 import TinyshaderEngine from '../shader-lib/TinyshaderEngine'
 import {useElementSize} from '@vueuse/core'
 
@@ -19,7 +19,8 @@ const shader = ref<{code: string, settings: ShaderSettings} | null>(null)
 
 const canvasSize = reactive(useElementSize(canvas))
 
-async function prepare() {
+async function prepare(task: CancellableTask) {
+  if (shaderEngine.value) { return }
   const shaderURL = getURLForFile(props.file)
   const shaderCode = await fetch(shaderURL).then(r => r.text())
 
@@ -74,8 +75,10 @@ onBeforeUnmount(() => {
   shaderEngine.value = null
 })
 
-async function display() {
-  await delay(duration.value);
+async function display(task: CancellableTask) {
+  if (!shaderEngine.value) throw new Error('shader engine not set up yet')
+  shaderEngine.value!.shaderTime = 0
+  await task.delay(duration.value);
 }
 
 const duration = computed(() => getDurationTag(props.file.name) ?? 20000);
