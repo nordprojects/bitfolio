@@ -43,7 +43,8 @@ async function display() {
     endedReject = reject;
   });
 
-  videoElement.value?.play();
+  videoElement.value!.currentTime = 0
+  videoElement.value!.play();
 
   try {
     if (loopingDuration.value) {
@@ -86,7 +87,7 @@ const url = computed(() => getURLForFile(props.file));
          @play="loadResolve()"
          @error="ev => loadReject('video failed to load')"
          @ended="endedResolve()"
-         @waiting="endedReject('lack of data')" />
+         />
 </template>
 
 <style lang="scss" scoped>
